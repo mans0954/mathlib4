@@ -70,7 +70,8 @@ variable (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G)
 
 --instance : AddCommMonoid (UniformConvergenceCLM σ₁₃ G 𝔖) := ContinuousLinearMap.addCommMonoid
 
--- I think these are the 𝔖-hypocontinuous maps (also need separate continuity?)
+-- I think if (B : F →SL[σ₂₃] UniformConvergenceCLM σ₁₃ G) then B.flip is 𝔖-hypocontinuous
+-- (also need separate continuity?)
 #check F →SL[σ₂₃] UniformConvergenceCLM σ₁₃ G 𝔖
 
 

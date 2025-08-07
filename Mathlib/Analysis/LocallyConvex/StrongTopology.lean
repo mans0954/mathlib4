@@ -5,6 +5,7 @@ Authors: Anatole Dedecker
 -/
 import Mathlib.Topology.Algebra.Module.StrongTopology
 import Mathlib.Topology.Algebra.Module.LocallyConvex
+import Mathlib.Topology.Algebra.Module.SesquilinearMap
 
 /-!
 # Local convexity of the strong topology
@@ -121,19 +122,17 @@ variable (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G) (x : E) -- (h : Con
 
 #check ContinuousLinearMap.mk (B x) h
 
-structure sep_con (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G) : Prop where
-  left : ∀ (x : E), Continuous (B x)
-  right : ∀ (y : F), Continuous (B.flip y)
 
-lemma sepcon1 (B : E →SL[σ₁₃] F →SL[σ₂₃] G) : sep_con B.toLinearMap₁₂ where
+
+lemma sepcon1 (B : E →SL[σ₁₃] F →SL[σ₂₃] G) : separateContinuity B.toLinearMap₁₂ where
   left x := (B x).2
   right := by
     intro y
-    
+    sorry
 
 
 
-def mkstp1 (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G) (h : sep_con B) : E →ₛₗ[σ₁₃] F →SL[σ₂₃] G where
+def mkstp1 (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G) (h : separateContinuity B) : E →ₛₗ[σ₁₃] F →SL[σ₂₃] G where
   toFun x := ⟨B x, h.left x⟩
   map_add' _ _:= by
     simp only [map_add]
@@ -143,10 +142,11 @@ def mkstp1 (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G) (h : sep_con B) :
     rfl
 
 omit [IsTopologicalAddGroup F] in
-lemma mkstp_apply (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G) (h : sep_con B) (x : E) : mkstp1 B h x = B x := rfl
+lemma mkstp_apply (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G) (h : separateContinuity B) (x : E) :
+  mkstp1 B h x = B x := rfl
 
 def mkContinuousOfSepCon (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G)
-    (h : sep_con B) : E →SL[σ₁₃] F →SL[σ₂₃] G := ⟨mkstp1 B h, by
+    (h : separateContinuity B) : E →SL[σ₁₃] F →SL[σ₂₃] G := ⟨mkstp1 B h, by
     simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
     refine continuous_iff_continuousAt.mpr ?_
     intro x
@@ -156,9 +156,11 @@ def mkContinuousOfSepCon (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G)
     simp [mkstp1, mkstp_apply]
 
     convert h.right _
-    sorry⟩
+    sorry
+    sorry
+    ⟩
 
-#check sep_con
+#check separateContinuity
 
 
 
@@ -166,7 +168,8 @@ def mkContinuousOfSepCon (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G)
 
 
 
-lemma test1 (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G) : sep_con B ↔ ∀ (y : F), Continuous (B.flip y) ∧ Continuous B := sorry
+lemma test1 (B : E →ₛₗ[σ₁₃] F →ₛₗ[σ₂₃] G) :
+    separateContinuity B ↔ ∀ (y : F), Continuous (B.flip y) ∧ Continuous B := sorry
 
 
 
@@ -180,7 +183,7 @@ def l1 (f : E →SL[σ₁₃] F →SL[σ₂₃] G) : (E × F) → G := fun (x, y
 lemma c1 : Continuous (l1 f) where
   isOpen_preimage := by
     intro U hU
-
+    sorry
 
 
 #check (f : E × F → G)
