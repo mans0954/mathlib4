@@ -13,10 +13,41 @@ import Mathlib.Topology.Algebra.Module.StrongTopology
 -/
 
 
+/-
+Induced from the product topology
+
+Works over Semirings and AddCommMonoid. Just needs `E` and `F` to be Topological Spaces
+-/
+section
+
+variable {E F : Type*} {𝕜₁ 𝕜₂} [Semiring 𝕜₁] [Semiring 𝕜₂]
+  (σ₁₂ : 𝕜₁ →+* 𝕜₂) [AddCommMonoid E] [AddCommMonoid F]
+   [Module 𝕜₁ E] [Module 𝕜₂ F] [TopologicalSpace E] [TopologicalSpace F] [SMulCommClass 𝕜₂ 𝕜₂ F]
+
+instance : TopologicalSpace (E →SL[σ₁₂] F) := TopologicalSpace.induced
+  (fun T x => (LinearMap.id  (R := 𝕜₂) (M := E →ₛₗ[σ₁₂] F)) T x) Pi.topologicalSpace
+
+end
+
+
+/-
+Use `UniformConvergenceCLM` with the singletons of `E`.
+
+Definition of `UniformConvergenceCLM` requires `𝕜₁` `𝕜₂` to be normed fields
+`E` and `F` need to be `AddCommGroup` (might be possible to relax this to `AddCommMonoid`?)
+Also need `IsTopologicalAddGroup F` (might be able to relax to )
+
+-/
+section
+
 variable {E F G : Type*} {𝕜₁ 𝕜₂ 𝕜₃} [NormedField 𝕜₁] [NormedField 𝕜₂] [NormedField 𝕜₃]
   (σ₁₂ : 𝕜₁ →+* 𝕜₂) (σ₂₃ : 𝕜₂ →+* 𝕜₃) (σ₁₃ : 𝕜₁ →+* 𝕜₃) [AddCommGroup E] [AddCommGroup F]
   [AddCommGroup G] [Module 𝕜₁ E] [Module 𝕜₂ F] [Module 𝕜₃ G] [TopologicalSpace E]
-  [TopologicalSpace F] [TopologicalSpace G] [IsTopologicalAddGroup F] [ContinuousConstSMul 𝕜₂ F]
+  [TopologicalSpace F] [TopologicalSpace G]
+
+#check UniformConvergenceCLM σ₁₂ F {{x} | (x : E)}
+
+variable [IsTopologicalAddGroup F] [ContinuousConstSMul 𝕜₂ F]
 
 #check E →SL[σ₁₂] F
 
@@ -48,7 +79,7 @@ variable (𝔖 : Set (Set E))
 
 
 
-#check UniformConvergenceCLM σ₁₂ F {{x} | (x : E)}
+
 
 lemma isInducing : Topology.IsInducing (fun (T : UniformConvergenceCLM σ₁₂ F {{x} | (x : E)}) x =>
   (LinearMap.id  (R := 𝕜₂) (M := E →ₛₗ[σ₁₂] F)) T x) where
@@ -64,3 +95,5 @@ lemma isInducing : Topology.IsInducing (fun (T : UniformConvergenceCLM σ₁₂ 
 
 
 #check LinearMap.applyₗ
+
+end
