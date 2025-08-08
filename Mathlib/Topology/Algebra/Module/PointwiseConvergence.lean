@@ -27,6 +27,9 @@ variable {E F : Type*} {𝕜₁ 𝕜₂} [Semiring 𝕜₁] [Semiring 𝕜₂]
 instance : TopologicalSpace (E →SL[σ₁₂] F) := TopologicalSpace.induced
   (fun T x => (LinearMap.id  (R := 𝕜₂) (M := E →ₛₗ[σ₁₂] F)) T x) Pi.topologicalSpace
 
+#check continuous_pi_iff
+
+
 end
 
 
