@@ -42,4 +42,25 @@ def apply' : E →ₛₗ[σ₁₂] (E →ₛₗ[σ₁₂] F) →ₗ[𝕜₂] F :
 instance : TopologicalSpace (E →SL[σ₁₂] F) := TopologicalSpace.induced
   (fun T x => (LinearMap.id  (R := 𝕜₂) (M := E →ₛₗ[σ₁₂] F)) T x) Pi.topologicalSpace
 
+variable (𝔖 : Set (Set E))
+
+#check {{x} | (x : E)}
+
+
+
+#check UniformConvergenceCLM σ₁₂ F {{x} | (x : E)}
+
+lemma isInducing : Topology.IsInducing (fun (T : UniformConvergenceCLM σ₁₂ F {{x} | (x : E)}) x =>
+  (LinearMap.id  (R := 𝕜₂) (M := E →ₛₗ[σ₁₂] F)) T x) where
+  eq_induced := by
+    ext U
+    constructor
+    · intro h
+      simp_all only [LinearMap.id_coe, id_eq, LinearMap.coe_coe]
+      sorry
+    · intro h
+      simp_all only [LinearMap.id_coe, id_eq, LinearMap.coe_coe]
+      sorry
+
+
 #check LinearMap.applyₗ
