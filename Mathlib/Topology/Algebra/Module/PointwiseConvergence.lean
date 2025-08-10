@@ -13,6 +13,49 @@ import Mathlib.Topology.Algebra.Module.StrongTopology
 -/
 
 
+section
+
+variable {E F : Type*} [TopologicalSpace F]
+
+instance : TopologicalSpace (E → F) := Pi.topologicalSpace
+
+
+variable (l : Filter (E → F))
+
+
+#check id (α := (E → F))
+
+#check fun (x : E) (T : E → F) => T x
+
+#check continuous_pi_iff
+
+#check ContinuousAt
+
+#check ∀ (x : E), Continuous (fun (T : E → F) => T x)
+
+lemma c1 (x : E) : Continuous (fun (T : E → F) => T x) := continuous_apply x
+
+lemma c2 (x : E) (T₀ : E → F) : ContinuousAt (fun (T : E → F) => T x) T₀ :=
+  continuousAt_apply x T₀
+
+open Topology in
+lemma c3 (x : E) (T₀ : E → F) : Filter.Tendsto (fun (T : E → F) => T x) (𝓝 T₀) (𝓝 (T₀ x)) :=
+  Filter.Tendsto.apply_nhds (fun ⦃_⦄ a ↦ a) x
+
+open Topology in
+lemma c4 (x : E) (T₀ : E → F) (h : l ≤ 𝓝 T₀) :
+    Filter.Tendsto (fun (T : E → F) => T x) l (𝓝 (T₀ x)) := Filter.Tendsto.apply_nhds h x
+
+open Topology in
+lemma reverse (T₀ : E → F) (h : ∀ (x : E), Filter.Tendsto (fun (T : E → F) => T x) l (𝓝 (T₀ x))) :
+  l ≤ 𝓝 T₀ := by
+  sorry
+
+#check continuousOn_univ
+
+end
+
+
 /-
 Induced from the product topology
 
@@ -24,10 +67,12 @@ variable {E F : Type*} {𝕜₁ 𝕜₂} [Semiring 𝕜₁] [Semiring 𝕜₂]
   (σ₁₂ : 𝕜₁ →+* 𝕜₂) [AddCommMonoid E] [AddCommMonoid F]
    [Module 𝕜₁ E] [Module 𝕜₂ F] [TopologicalSpace E] [TopologicalSpace F] [SMulCommClass 𝕜₂ 𝕜₂ F]
 
+#check LinearMap.id  (R := 𝕜₂) (M := E →ₛₗ[σ₁₂] F).flip
+
 instance : TopologicalSpace (E →SL[σ₁₂] F) := TopologicalSpace.induced
   (fun T x => (LinearMap.id  (R := 𝕜₂) (M := E →ₛₗ[σ₁₂] F)) T x) Pi.topologicalSpace
 
-#check continuous_pi_iff
+
 
 
 end
