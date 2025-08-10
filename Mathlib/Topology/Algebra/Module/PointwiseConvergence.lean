@@ -49,7 +49,15 @@ lemma c4 (x : E) (T₀ : E → F) (h : l ≤ 𝓝 T₀) :
 open Topology in
 lemma reverse (T₀ : E → F) (h : ∀ (x : E), Filter.Tendsto (fun (T : E → F) => T x) l (𝓝 (T₀ x))) :
   l ≤ 𝓝 T₀ := by
-  sorry
+  apply tendsto_pi_nhds.mpr
+  exact fun x ↦ h x
+
+/- This is the filter version of the statement $T_λ → T$ iff, for all $x$ in $E$, $T_λ x → T x$.-/
+open Topology in
+lemma pointwise (T₀ : E → F) :
+    l ≤ 𝓝 T₀ ↔ ∀ (x : E), Filter.Tendsto (fun (T : E → F) => T x) l (𝓝 (T₀ x))  := tendsto_pi_nhds
+
+
 
 #check continuousOn_univ
 
