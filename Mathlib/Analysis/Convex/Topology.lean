@@ -122,7 +122,7 @@ end PseudoMetricSpace
 
 section ContinuousConstSMul
 
-variable [Field 𝕜] [LinearOrder 𝕜]
+variable [Field 𝕜] [PartialOrder 𝕜]
   [AddCommGroup E] [Module 𝕜 E] [TopologicalSpace E]
   [IsTopologicalAddGroup E] [ContinuousConstSMul 𝕜 E]
 
@@ -245,6 +245,14 @@ protected theorem Convex.closure {s : Set E} (hs : Convex 𝕜 s) : Convex 𝕜 
     (continuous_fst.const_smul _).add (continuous_snd.const_smul _)
   show f x y ∈ closure s from map_mem_closure₂ hf hx hy fun _ hx' _ hy' => hs hx' hy' ha hb hab
 
+end ContinuousConstSMul
+
+section ContinuousConstSMul
+
+variable [Field 𝕜] [LinearOrder 𝕜]
+  [AddCommGroup E] [Module 𝕜 E] [TopologicalSpace E]
+  [IsTopologicalAddGroup E] [ContinuousConstSMul 𝕜 E]
+
 open AffineMap
 
 variable [IsStrictOrderedRing 𝕜]
@@ -354,7 +362,7 @@ end TopologicalSpace
 
 section ContinuousConstSMul
 
-variable [Field 𝕜] [LinearOrder 𝕜]
+variable [Field 𝕜] [PartialOrder 𝕜]
   [AddCommGroup E] [Module 𝕜 E] [TopologicalSpace E]
   [IsTopologicalAddGroup E] [ContinuousConstSMul 𝕜 E]
 

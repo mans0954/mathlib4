@@ -6,6 +6,7 @@ Authors: Jireh Loreaux
 import Mathlib.Analysis.NormedSpace.HahnBanach.Separation
 import Mathlib.LinearAlgebra.Dual.Defs
 import Mathlib.Topology.Algebra.Module.WeakDual
+import Mathlib.Analysis.LocallyConvex.AbsConvex
 
 /-! # Closures of convex sets in locally convex spaces
 
@@ -24,6 +25,37 @@ variable [TopologicalSpace E] [IsTopologicalAddGroup E] [ContinuousSMul 𝕜 E]
   [LocallyConvexSpace ℝ E]
 variable [TopologicalSpace F] [IsTopologicalAddGroup F] [ContinuousSMul 𝕜 F]
   [LocallyConvexSpace ℝ F]
+
+open ComplexOrder in
+theorem toWeakSpace_closedAbsConvexHull {s : Set E} :
+    (toWeakSpace 𝕜 E) '' (closedConvexHull 𝕜 s) =
+    closedConvexHull 𝕜 (toWeakSpace 𝕜 E '' s) := by
+  rw [le_antisymm_iff]
+  constructor
+  · simp_rw [closedConvexHull_eq_closure_convexHull]
+    apply (map_continuous <| toWeakSpaceCLM 𝕜 E).continuousOn.image_closure
+    intro x hx
+    simp at hx
+    obtain ⟨w, hw1, hw2⟩ := hx
+    sorry
+  · intro x hx
+    --apply (map_continuous <| toWeakSpaceCLM 𝕜 E).continuousOn.image_closure
+    --simp only [toWeakSpaceCLM_eq_toWeakSpace, Set.mem_image]
+    sorry
+
+
+variable (𝕜) in
+theorem Convex.toWeakSpace_closure' {s : Set E} (hs : Convex ℝ s) :
+    (toWeakSpace 𝕜 E) '' (closure s) = closure (toWeakSpace 𝕜 E '' s) := by
+  --apply le_antisymm (map_continuous <| toWeakSpaceCLM 𝕜 E).continuousOn.image_closure
+
+
+  rw [le_antisymm_iff]
+  constructor
+  · apply (map_continuous <| toWeakSpaceCLM 𝕜 E).continuousOn.image_closure
+  · sorry
+
+    sorry
 
 variable (𝕜) in
 /-- If `E` is a locally convex space over `𝕜` (with `RCLike 𝕜`), and `s : Set E` is `ℝ`-convex, then
@@ -51,6 +83,19 @@ theorem Convex.toWeakSpace_closure {s : Set E} (hs : Convex ℝ s) :
     rintro - ⟨y, hy, rfl⟩
     simpa [f'] using (hus y <| subset_closure hy).le
   exact (hux'.not_ge <| hus' ·)
+
+
+theorem LinearMap.image_closedAbsConvexHull {s : Set E} (e : E →ₗ[𝕜] F)
+    (he : ∀ f : StrongDual 𝕜 F, Continuous (e.dualMap f)) :
+    e '' (closedAbsConvexHull ℝ s) ⊆ closedAbsConvexHull ℝ (e '' s) := by
+  suffices he' : Continuous (toWeakSpace 𝕜 F <| e <| (toWeakSpace 𝕜 E).symm ·) by
+    have h_convex : Convex ℝ (e '' s) := hs.linear_image (F := F) e
+    rw [← Set.image_subset_image_iff (toWeakSpace 𝕜 F).injective, h_convex.toWeakSpace_closure 𝕜]
+    simpa only [Set.image_image, ← hs.toWeakSpace_closure 𝕜, LinearEquiv.symm_apply_apply]
+      using he'.continuousOn.image_closure (s := toWeakSpace 𝕜 E '' s)
+  exact WeakBilin.continuous_of_continuous_eval _ fun f ↦
+    WeakBilin.eval_continuous _ { toLinearMap := e.dualMap f : StrongDual 𝕜 E }
+
 
 /-- If `e : E →ₗ[𝕜] F` is a linear map between locally convex spaces, and `f ∘ e` is continuous
 for every continuous linear functional `f : StrongDual 𝕜 F`, then `e` commutes with the closure on

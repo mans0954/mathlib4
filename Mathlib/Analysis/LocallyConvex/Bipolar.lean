@@ -12,7 +12,10 @@ import Mathlib.Analysis.NormedSpace.HahnBanach.Separation
 import Mathlib.LinearAlgebra.Dual.Lemmas
 import Mathlib.Analysis.RCLike.Basic
 import Mathlib.Topology.Algebra.Module.StrongTopology
+import Mathlib.Topology.Algebra.Module.StrongDual
 import Mathlib.Order.Closure
+import Mathlib.Analysis.Normed.Module.Dual
+import Mathlib.Analysis.LocallyConvex.WeakSpace
 
 /-!
 
@@ -170,5 +173,39 @@ lemma closureOperator_polar_gc_nonempty {s : Set E} [Nonempty s] :
   simp [flip_polar_polar_eq]
 
 end RCLike
+
+section NormedSpace
+
+variable (𝕜 : Type*) [RCLike 𝕜]
+
+--variable (X : Type*) [NormedAddCommGroup X]
+--variable {M : Type*} [Ring M] [Module M X]
+
+variable {M : Type*} [NormedAddCommGroup M] [NormedSpace 𝕜 M]
+
+-- Let m be a subset of M closed under scalar multiplication
+variable {S : Type*} [SetLike S M] [SMulMemClass S 𝕜 M] (m : S)
+
+#check StrongDual.polarSubmodule 𝕜 (StrongDual.polarSubmodule 𝕜 m)
+
+#check NormedSpace.inclusionInDoubleDualLi 𝕜 (E := M) '' m
+
+lemma test1 : NormedSpace.inclusionInDoubleDualLi 𝕜 (E := M) '' m ⊆
+    StrongDual.polarSubmodule 𝕜 (StrongDual.polarSubmodule 𝕜 m) := by
+  intro x hx
+  rw [NormedSpace.inclusionInDoubleDualLi] at hx
+  simp at hx
+  obtain ⟨w, h1, h2⟩ := hx
+  subst h2
+  simp_all only [SetLike.mem_coe]
+  rw [StrongDual.mem_polarSubmodule]
+  intro y hy
+  rw [NormedSpace.dual_def]
+  rw [StrongDual.mem_polarSubmodule] at hy
+  exact hy w h1
+
+#check LinearEquiv.image_closure_of_convex'
+
+end NormedSpace
 
 end LinearMap
