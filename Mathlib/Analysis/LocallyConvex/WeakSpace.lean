@@ -23,67 +23,32 @@ variable [RCLike 𝕜] [AddCommGroup E] [Module 𝕜 E] [AddCommGroup F] [Module
 variable [Module ℝ E] [IsScalarTower ℝ 𝕜 E] [Module ℝ F] [IsScalarTower ℝ 𝕜 F]
 
 open ComplexOrder
-lemma convex_real_of_convex_RCLike {s : Set E} (hs : Convex 𝕜 s) : Convex ℝ s := by
-  simp only [Convex, StarConvex] at hs ⊢
-  intro u hu v hv a b ha hb hab
-  convert hs hu hv (RCLike.ofReal_nonneg.mpr ha) (RCLike.ofReal_nonneg.mpr hb)
-    (by rw [← RCLike.ofReal_add, hab, RCLike.ofReal_one]) using 2
-  · rw [algebraMap_smul]
-  · rw [algebraMap_smul]
-
-open ComplexOrder
-lemma convex_RCLike_of_convex_real {s : Set E} (hs : Convex ℝ s) : Convex 𝕜 s := by
-  simp only [Convex, StarConvex] at hs ⊢
-  intro u hu v hv a b ha hb hab
-  rw [RCLike.nonneg_iff_exists_ofReal] at ha
-  rw [RCLike.nonneg_iff_exists_ofReal] at hb
-  obtain ⟨c, hc1, hc2⟩ := ha
-  obtain ⟨d, hd1, hd2⟩ := hb
-  convert hs hu hv hc1 hd1 _ using 2
-  · rw [← hc2, algebraMap_smul]
-  · rw [← hd2, algebraMap_smul]
-  rw [← hc2, ← hd2, ← RCLike.ofReal_add] at hab
-  norm_cast at hab
-
+lemma convex_real_iff_convex_RCLike {s : Set E} : Convex 𝕜 s ↔ Convex ℝ s := by
+  constructor
+  · intro hs
+    simp only [Convex, StarConvex] at hs ⊢
+    intro u hu v hv a b ha hb hab
+    convert hs hu hv (RCLike.ofReal_nonneg.mpr ha) (RCLike.ofReal_nonneg.mpr hb)
+      (by rw [← RCLike.ofReal_add, hab, RCLike.ofReal_one]) using 2
+    · rw [algebraMap_smul]
+    · rw [algebraMap_smul]
+  · intro hs
+    simp only [Convex, StarConvex] at hs ⊢
+    intro u hu v hv a b ha hb hab
+    rw [RCLike.nonneg_iff_exists_ofReal] at ha
+    rw [RCLike.nonneg_iff_exists_ofReal] at hb
+    obtain ⟨c, hc1, hc2⟩ := ha
+    obtain ⟨d, hd1, hd2⟩ := hb
+    convert hs hu hv hc1 hd1 _ using 2
+    · rw [← hc2, algebraMap_smul]
+    · rw [← hd2, algebraMap_smul]
+    rw [← hc2, ← hd2, ← RCLike.ofReal_add] at hab
+    norm_cast at hab
 
 variable [TopologicalSpace E] [IsTopologicalAddGroup E] [ContinuousSMul 𝕜 E]
   [LocallyConvexSpace ℝ E]
 variable [TopologicalSpace F] [IsTopologicalAddGroup F] [ContinuousSMul 𝕜 F]
   [LocallyConvexSpace ℝ F]
-
-/-
-open ComplexOrder in
-theorem toWeakSpace_closedAbsConvexHull {s : Set E} :
-    (toWeakSpace 𝕜 E) '' (closedConvexHull 𝕜 s) =
-    closedConvexHull 𝕜 (toWeakSpace 𝕜 E '' s) := by
-  rw [le_antisymm_iff]
-  constructor
-  · rw [closedConvexHull_eq_closure_convexHull]
-    rw [closedConvexHull_eq_closure_convexHull]
-    apply (map_continuous <| toWeakSpaceCLM 𝕜 E).continuousOn.image_closure
-    intro x hx
-    simp at hx
-    obtain ⟨w, hw1, hw2⟩ := hx
-    sorry
-  · intro x hx
-    --apply (map_continuous <| toWeakSpaceCLM 𝕜 E).continuousOn.image_closure
-    --simp only [toWeakSpaceCLM_eq_toWeakSpace, Set.mem_image]
-    sorry
-
-
-variable (𝕜) in
-theorem Convex.toWeakSpace_closure' {s : Set E} (hs : Convex ℝ s) :
-    (toWeakSpace 𝕜 E) '' (closure s) = closure (toWeakSpace 𝕜 E '' s) := by
-  --apply le_antisymm (map_continuous <| toWeakSpaceCLM 𝕜 E).continuousOn.image_closure
-
-
-  rw [le_antisymm_iff]
-  constructor
-  · apply (map_continuous <| toWeakSpaceCLM 𝕜 E).continuousOn.image_closure
-  · sorry
-
-    sorry
--/
 
 variable (𝕜) in
 /-- If `E` is a locally convex space over `𝕜` (with `RCLike 𝕜`), and `s : Set E` is `ℝ`-convex, then
@@ -112,67 +77,16 @@ theorem Convex.toWeakSpace_closure {s : Set E} (hs : Convex ℝ s) :
     simpa [f'] using (hus y <| subset_closure hy).le
   exact (hux'.not_ge <| hus' ·)
 
---#check Convex.convex_isRCLikeNormedField
-/-
-open ComplexOrder
-lemma test_star_convex {s : Set E} (x : E) (hs : StarConvex 𝕜 x s) : StarConvex ℝ x s := by
-  intro y hy a b ha hb hab
-  rw [StarConvex] at hs
-  sorry
--/
-
-
-
-
-/-
-open ComplexOrder
-#check LinearMap.image_convexHull (toWeakSpace 𝕜 E).toLinearMap
-
-instance : ContinuousSMul 𝕜 E := by (expose_names; exact inst_11)
-
-instance : ContinuousSMul 𝕜 (WeakSpace 𝕜 E) where
-  continuous_smul := by
-    apply WeakBilin.continuous_of_continuous_eval
-    intro y
-    simp_all only [map_smul, LinearMap.smul_apply, LinearMap.flip_apply]
-    simp_rw [topDualPairing_apply]
-    simp_rw [← LinearMap.smul_apply]
-    --apply ContinuousSMul.continuous_smul
-    --apply WeakBilin.eval_continuous
-    sorry
-
-
-instance : ContinuousConstSMul 𝕜 E := ContinuousSMul.continuousConstSMul
-
-instance : ContinuousConstSMul 𝕜 (WeakSpace 𝕜 E) := by
-  apply ContinuousSMul.continuousConstSMul
--/
-
-
--- [ContinuousSMul 𝕜 𝕜]
 open ComplexOrder in
 theorem toWeakSpace_closedAbsConvexHull [ContinuousSMul 𝕜 𝕜] {s : Set E} :
     (toWeakSpace 𝕜 E) '' (closedConvexHull 𝕜 s) =
     closedConvexHull 𝕜 (toWeakSpace 𝕜 E '' s) := by
   rw [closedConvexHull_eq_closure_convexHull (𝕜 := 𝕜)]
-  rw [Convex.toWeakSpace_closure _ (convex_real_of_convex_RCLike (𝕜 := 𝕜) (convex_convexHull 𝕜 s))]
+  rw [Convex.toWeakSpace_closure _ (convex_real_iff_convex_RCLike.mp (convex_convexHull 𝕜 s))]
   have : ContinuousSMul 𝕜 (WeakSpace 𝕜 E) := WeakBilin.instContinuousSMul _
   rw [closedConvexHull_eq_closure_convexHull (𝕜 := 𝕜)]
   congr
   refine LinearMap.image_convexHull (toWeakSpace 𝕜 E).toLinearMap s
-
-/-
-theorem LinearMap.image_closedAbsConvexHull {s : Set E} (e : E →ₗ[𝕜] F)
-    (he : ∀ f : StrongDual 𝕜 F, Continuous (e.dualMap f)) :
-    e '' (closedAbsConvexHull ℝ s) ⊆ closedAbsConvexHull ℝ (e '' s) := by
-  suffices he' : Continuous (toWeakSpace 𝕜 F <| e <| (toWeakSpace 𝕜 E).symm ·) by
-    have h_convex : Convex ℝ (e '' s) := hs.linear_image (F := F) e
-    rw [← Set.image_subset_image_iff (toWeakSpace 𝕜 F).injective, h_convex.toWeakSpace_closure 𝕜]
-    simpa only [Set.image_image, ← hs.toWeakSpace_closure 𝕜, LinearEquiv.symm_apply_apply]
-      using he'.continuousOn.image_closure (s := toWeakSpace 𝕜 E '' s)
-  exact WeakBilin.continuous_of_continuous_eval _ fun f ↦
-    WeakBilin.eval_continuous _ { toLinearMap := e.dualMap f : StrongDual 𝕜 E }
--/
 
 /-- If `e : E →ₗ[𝕜] F` is a linear map between locally convex spaces, and `f ∘ e` is continuous
 for every continuous linear functional `f : StrongDual 𝕜 F`, then `e` commutes with the closure on
