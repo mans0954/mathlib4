@@ -35,27 +35,30 @@ lemma convex_of_nonneg_algebraMap {s : Set M} (halg : ∀ ⦃r : R⦄, 0 ≤ r �
   · rw [algebraMap_smul]
   · rw [algebraMap_smul]
 
-end
+lemma convex_of_nonneg_surjective_algebraMap [FaithfulSMul R A] {s : Set M}
+    (halg : ∀ ⦃a : A⦄, 0 ≤ a → ∃ (r : R), 0 ≤ r ∧ algebraMap R A r = a) (hs : Convex R s) :
+    Convex A s := by
+  simp only [Convex, StarConvex] at hs ⊢
+  intro u hu v hv a b ha hb hab
+  obtain ⟨c, hc1, hc2⟩ := halg ha
+  obtain ⟨d, hd1, hd2⟩ := halg hb
+  convert hs hu hv hc1 hd1 _ using 2
+  · rw [← hc2, algebraMap_smul]
+  · rw [← hd2, algebraMap_smul]
+  rw [← hc2, ← hd2, ← algebraMap.coe_add] at hab
+  exact (FaithfulSMul.algebraMap_eq_one_iff R A).mp hab
 
+end
 
 variable {𝕜 E F : Type*}
 variable [RCLike 𝕜] [AddCommGroup E] [Module 𝕜 E] [AddCommGroup F] [Module 𝕜 F]
 variable [Module ℝ E] [IsScalarTower ℝ 𝕜 E] [Module ℝ F] [IsScalarTower ℝ 𝕜 F]
 
-open ComplexOrder
-lemma convex_real_iff_convex_RCLike {s : Set E} : Convex 𝕜 s ↔ Convex ℝ s := by
-  constructor
-  · exact fun hs => convex_of_nonneg_algebraMap (A := 𝕜) (fun _ => RCLike.ofReal_nonneg.mpr) hs
-  · intro hs
-    simp only [Convex, StarConvex] at hs ⊢
-    intro u hu v hv a b ha hb hab
-    obtain ⟨c, hc1, hc2⟩ := RCLike.nonneg_iff_exists_ofReal.mp ha
-    obtain ⟨d, hd1, hd2⟩ := RCLike.nonneg_iff_exists_ofReal.mp hb
-    convert hs hu hv hc1 hd1 _ using 2
-    · rw [← hc2, algebraMap_smul]
-    · rw [← hd2, algebraMap_smul]
-    rw [← hc2, ← hd2, ← RCLike.ofReal_add] at hab
-    norm_cast at hab
+open ComplexOrder RCLike in
+lemma convex_real_iff_convex_RCLike {s : Set E} : Convex 𝕜 s ↔ Convex ℝ s :=
+  ⟨fun hs => convex_of_nonneg_algebraMap (A := 𝕜) (fun _ => ofReal_nonneg.mpr) hs,
+  fun hs => convex_of_nonneg_surjective_algebraMap _ (fun _ => nonneg_iff_exists_ofReal.mp) hs⟩
+
 
 variable [TopologicalSpace E] [IsTopologicalAddGroup E] [ContinuousSMul 𝕜 E]
   [LocallyConvexSpace ℝ E]
