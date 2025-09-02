@@ -26,11 +26,25 @@ open ComplexOrder
 lemma convex_real_of_convex_RCLike {s : Set E} (hs : Convex 𝕜 s) : Convex ℝ s := by
   simp only [Convex, StarConvex] at hs ⊢
   intro u hu v hv a b ha hb hab
-  have e1 : (RCLike.ofReal (K := 𝕜) a) • u + (RCLike.ofReal (K := 𝕜) b) • v = a • u + b • v := by
-    rw [algebraMap_smul, algebraMap_smul]
-  rw [← e1]
-  apply hs hu hv (RCLike.ofReal_nonneg.mpr ha) (RCLike.ofReal_nonneg.mpr hb)
-  rw [← RCLike.ofReal_add, hab, RCLike.ofReal_one]
+  convert hs hu hv (RCLike.ofReal_nonneg.mpr ha) (RCLike.ofReal_nonneg.mpr hb)
+    (by rw [← RCLike.ofReal_add, hab, RCLike.ofReal_one]) using 2
+  · rw [algebraMap_smul]
+  · rw [algebraMap_smul]
+
+open ComplexOrder
+lemma convex_RCLike_of_convex_real {s : Set E} (hs : Convex ℝ s) : Convex 𝕜 s := by
+  simp only [Convex, StarConvex] at hs ⊢
+  intro u hu v hv a b ha hb hab
+  rw [RCLike.nonneg_iff_exists_ofReal] at ha
+  rw [RCLike.nonneg_iff_exists_ofReal] at hb
+  obtain ⟨c, hc1, hc2⟩ := ha
+  obtain ⟨d, hd1, hd2⟩ := hb
+  convert hs hu hv hc1 hd1 _ using 2
+  · rw [← hc2, algebraMap_smul]
+  · rw [← hd2, algebraMap_smul]
+  rw [← hc2, ← hd2, ← RCLike.ofReal_add] at hab
+  norm_cast at hab
+
 
 variable [TopologicalSpace E] [IsTopologicalAddGroup E] [ContinuousSMul 𝕜 E]
   [LocallyConvexSpace ℝ E]
