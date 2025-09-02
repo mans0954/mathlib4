@@ -7,6 +7,7 @@ import Mathlib.Analysis.NormedSpace.HahnBanach.Separation
 import Mathlib.LinearAlgebra.Dual.Defs
 import Mathlib.Topology.Algebra.Module.WeakDual
 import Mathlib.Analysis.LocallyConvex.AbsConvex
+import Mathlib.Algebra.Order.Algebra
 
 /-! # Closures of convex sets in locally convex spaces
 
@@ -50,13 +51,25 @@ lemma convex_of_nonneg_surjective_algebraMap [FaithfulSMul R A] {s : Set M}
 
 end
 
+section
+
+variable {R : Type*} [CommRing R]
+variable (A : Type*) [Ring A] [Algebra R A]
+variable {M : Type*} [AddCommMonoid M] [Module A M] [Module R M] [IsScalarTower R A M]
+variable [PartialOrder R] [IsOrderedRing R] [PartialOrder A] [IsOrderedRing A] [OrderedSMul R A]
+
+lemma convex_ordered_ring_of_convex_ordered_algebra {s : Set M} (hs : Convex A s) : Convex R s :=
+  convex_of_nonneg_algebraMap A (fun ⦃_⦄ ↦ algebraMap_nonneg A) hs
+
+end
+
 variable {𝕜 E F : Type*}
 variable [RCLike 𝕜] [AddCommGroup E] [Module 𝕜 E] [AddCommGroup F] [Module 𝕜 F]
 variable [Module ℝ E] [IsScalarTower ℝ 𝕜 E] [Module ℝ F] [IsScalarTower ℝ 𝕜 F]
 
 open ComplexOrder RCLike in
 lemma convex_real_iff_convex_RCLike {s : Set E} : Convex 𝕜 s ↔ Convex ℝ s :=
-  ⟨fun hs => convex_of_nonneg_algebraMap (A := 𝕜) (fun _ => ofReal_nonneg.mpr) hs,
+  ⟨fun hs => convex_ordered_ring_of_convex_ordered_algebra (A := 𝕜) hs,
   fun hs => convex_of_nonneg_surjective_algebraMap _ (fun _ => nonneg_iff_exists_ofReal.mp) hs⟩
 
 
