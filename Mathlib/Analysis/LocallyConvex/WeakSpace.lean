@@ -18,6 +18,26 @@ Of course, we phrase this in terms of linear maps between locally convex spaces,
 creating two separate topologies on the same space.
 -/
 
+section
+
+variable {R : Type*} [CommSemiring R]
+variable (A : Type*) [Semiring A] [Algebra R A]
+variable {M : Type*} [AddCommMonoid M] [Module A M] [Module R M] [IsScalarTower R A M]
+variable [PartialOrder R] [PartialOrder A]
+
+
+lemma convex_of_nonneg_algebraMap {s : Set M} (halg : ∀ ⦃r : R⦄, 0 ≤ r → 0 ≤ algebraMap R A r)
+    (hs : Convex A s) : Convex R s := by
+  simp only [Convex, StarConvex] at hs ⊢
+  intro u hu v hv a b ha hb hab
+  convert hs hu hv (halg ha) (halg hb) (by rw [← algebraMap.coe_add, hab, algebraMap.coe_one])
+    using 2
+  · rw [algebraMap_smul]
+  · rw [algebraMap_smul]
+
+end
+
+
 variable {𝕜 E F : Type*}
 variable [RCLike 𝕜] [AddCommGroup E] [Module 𝕜 E] [AddCommGroup F] [Module 𝕜 F]
 variable [Module ℝ E] [IsScalarTower ℝ 𝕜 E] [Module ℝ F] [IsScalarTower ℝ 𝕜 F]
@@ -25,13 +45,7 @@ variable [Module ℝ E] [IsScalarTower ℝ 𝕜 E] [Module ℝ F] [IsScalarTower
 open ComplexOrder
 lemma convex_real_iff_convex_RCLike {s : Set E} : Convex 𝕜 s ↔ Convex ℝ s := by
   constructor
-  · intro hs
-    simp only [Convex, StarConvex] at hs ⊢
-    intro u hu v hv a b ha hb hab
-    convert hs hu hv (RCLike.ofReal_nonneg.mpr ha) (RCLike.ofReal_nonneg.mpr hb)
-      (by rw [← RCLike.ofReal_add, hab, RCLike.ofReal_one]) using 2
-    · rw [algebraMap_smul]
-    · rw [algebraMap_smul]
+  · exact fun hs => convex_of_nonneg_algebraMap (A := 𝕜) (fun _ => RCLike.ofReal_nonneg.mpr) hs
   · intro hs
     simp only [Convex, StarConvex] at hs ⊢
     intro u hu v hv a b ha hb hab
