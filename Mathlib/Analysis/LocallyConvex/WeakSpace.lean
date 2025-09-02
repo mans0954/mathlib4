@@ -35,10 +35,8 @@ lemma convex_real_iff_convex_RCLike {s : Set E} : Convex 𝕜 s ↔ Convex ℝ s
   · intro hs
     simp only [Convex, StarConvex] at hs ⊢
     intro u hu v hv a b ha hb hab
-    rw [RCLike.nonneg_iff_exists_ofReal] at ha
-    rw [RCLike.nonneg_iff_exists_ofReal] at hb
-    obtain ⟨c, hc1, hc2⟩ := ha
-    obtain ⟨d, hd1, hd2⟩ := hb
+    obtain ⟨c, hc1, hc2⟩ := RCLike.nonneg_iff_exists_ofReal.mp ha
+    obtain ⟨d, hd1, hd2⟩ := RCLike.nonneg_iff_exists_ofReal.mp hb
     convert hs hu hv hc1 hd1 _ using 2
     · rw [← hc2, algebraMap_smul]
     · rw [← hd2, algebraMap_smul]
