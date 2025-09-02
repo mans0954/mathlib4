@@ -21,18 +21,31 @@ creating two separate topologies on the same space.
 variable {𝕜 E F : Type*}
 variable [RCLike 𝕜] [AddCommGroup E] [Module 𝕜 E] [AddCommGroup F] [Module 𝕜 F]
 variable [Module ℝ E] [IsScalarTower ℝ 𝕜 E] [Module ℝ F] [IsScalarTower ℝ 𝕜 F]
+
+open ComplexOrder
+lemma convex_real_of_convex_RCLike {s : Set E} (hs : Convex 𝕜 s) : Convex ℝ s := by
+  simp only [Convex, StarConvex] at hs ⊢
+  intro u hu v hv a b ha hb hab
+  have e1 : (RCLike.ofReal (K := 𝕜) a) • u + (RCLike.ofReal (K := 𝕜) b) • v = a • u + b • v := by
+    rw [algebraMap_smul, algebraMap_smul]
+  rw [← e1]
+  apply hs hu hv (RCLike.ofReal_nonneg.mpr ha) (RCLike.ofReal_nonneg.mpr hb)
+  rw [← RCLike.ofReal_add, hab, RCLike.ofReal_one]
+
 variable [TopologicalSpace E] [IsTopologicalAddGroup E] [ContinuousSMul 𝕜 E]
   [LocallyConvexSpace ℝ E]
 variable [TopologicalSpace F] [IsTopologicalAddGroup F] [ContinuousSMul 𝕜 F]
   [LocallyConvexSpace ℝ F]
 
+/-
 open ComplexOrder in
 theorem toWeakSpace_closedAbsConvexHull {s : Set E} :
     (toWeakSpace 𝕜 E) '' (closedConvexHull 𝕜 s) =
     closedConvexHull 𝕜 (toWeakSpace 𝕜 E '' s) := by
   rw [le_antisymm_iff]
   constructor
-  · simp_rw [closedConvexHull_eq_closure_convexHull]
+  · rw [closedConvexHull_eq_closure_convexHull]
+    rw [closedConvexHull_eq_closure_convexHull]
     apply (map_continuous <| toWeakSpaceCLM 𝕜 E).continuousOn.image_closure
     intro x hx
     simp at hx
@@ -56,6 +69,7 @@ theorem Convex.toWeakSpace_closure' {s : Set E} (hs : Convex ℝ s) :
   · sorry
 
     sorry
+-/
 
 variable (𝕜) in
 /-- If `E` is a locally convex space over `𝕜` (with `RCLike 𝕜`), and `s : Set E` is `ℝ`-convex, then
@@ -84,7 +98,56 @@ theorem Convex.toWeakSpace_closure {s : Set E} (hs : Convex ℝ s) :
     simpa [f'] using (hus y <| subset_closure hy).le
   exact (hux'.not_ge <| hus' ·)
 
+--#check Convex.convex_isRCLikeNormedField
+/-
+open ComplexOrder
+lemma test_star_convex {s : Set E} (x : E) (hs : StarConvex 𝕜 x s) : StarConvex ℝ x s := by
+  intro y hy a b ha hb hab
+  rw [StarConvex] at hs
+  sorry
+-/
 
+
+
+
+/-
+open ComplexOrder
+#check LinearMap.image_convexHull (toWeakSpace 𝕜 E).toLinearMap
+
+instance : ContinuousSMul 𝕜 E := by (expose_names; exact inst_11)
+
+instance : ContinuousSMul 𝕜 (WeakSpace 𝕜 E) where
+  continuous_smul := by
+    apply WeakBilin.continuous_of_continuous_eval
+    intro y
+    simp_all only [map_smul, LinearMap.smul_apply, LinearMap.flip_apply]
+    simp_rw [topDualPairing_apply]
+    simp_rw [← LinearMap.smul_apply]
+    --apply ContinuousSMul.continuous_smul
+    --apply WeakBilin.eval_continuous
+    sorry
+
+
+instance : ContinuousConstSMul 𝕜 E := ContinuousSMul.continuousConstSMul
+
+instance : ContinuousConstSMul 𝕜 (WeakSpace 𝕜 E) := by
+  apply ContinuousSMul.continuousConstSMul
+-/
+
+
+-- [ContinuousSMul 𝕜 𝕜]
+open ComplexOrder in
+theorem toWeakSpace_closedAbsConvexHull [ContinuousSMul 𝕜 𝕜] {s : Set E} :
+    (toWeakSpace 𝕜 E) '' (closedConvexHull 𝕜 s) =
+    closedConvexHull 𝕜 (toWeakSpace 𝕜 E '' s) := by
+  rw [closedConvexHull_eq_closure_convexHull (𝕜 := 𝕜)]
+  rw [Convex.toWeakSpace_closure _ (convex_real_of_convex_RCLike (𝕜 := 𝕜) (convex_convexHull 𝕜 s))]
+  have : ContinuousSMul 𝕜 (WeakSpace 𝕜 E) := WeakBilin.instContinuousSMul _
+  rw [closedConvexHull_eq_closure_convexHull (𝕜 := 𝕜)]
+  congr
+  refine LinearMap.image_convexHull (toWeakSpace 𝕜 E).toLinearMap s
+
+/-
 theorem LinearMap.image_closedAbsConvexHull {s : Set E} (e : E →ₗ[𝕜] F)
     (he : ∀ f : StrongDual 𝕜 F, Continuous (e.dualMap f)) :
     e '' (closedAbsConvexHull ℝ s) ⊆ closedAbsConvexHull ℝ (e '' s) := by
@@ -95,7 +158,7 @@ theorem LinearMap.image_closedAbsConvexHull {s : Set E} (e : E →ₗ[𝕜] F)
       using he'.continuousOn.image_closure (s := toWeakSpace 𝕜 E '' s)
   exact WeakBilin.continuous_of_continuous_eval _ fun f ↦
     WeakBilin.eval_continuous _ { toLinearMap := e.dualMap f : StrongDual 𝕜 E }
-
+-/
 
 /-- If `e : E →ₗ[𝕜] F` is a linear map between locally convex spaces, and `f ∘ e` is continuous
 for every continuous linear functional `f : StrongDual 𝕜 F`, then `e` commutes with the closure on
